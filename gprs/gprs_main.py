@@ -1,3 +1,4 @@
+from os.path import exists
 import sys
 import os
 import glob
@@ -5,7 +6,6 @@ import random
 import pandas as pd
 from pathlib import Path
 from subprocess import call
-from timeit import default_timer as timer
 from collections import defaultdict
 
 from sklearn.utils import column_or_1d
@@ -24,7 +24,6 @@ class GPRS(object):
         self.result_dir = Path('{}/{}'.format(os.getcwd(), result_dir)).resolve()
         self.sumstat_dir = '{}/{}'.format(self.result_dir, 'sumstat')
         self.plink_dir = '{}/{}'.format(self.result_dir, 'plink')
-        self.pop_dir = '{}/{}'.format(self.result_dir, 'pop')
         self.random_draw_sample_dir = '{}/{}'.format(self.result_dir, 'random_draw_sample')
         self.stat_dir = '{}/{}'.format(self.result_dir, 'stat')
         self.plink_bfiles_dir = '{}/{}'.format(self.plink_dir, 'bfiles')
@@ -109,7 +108,7 @@ class GPRS(object):
             #fill in N_eff if given as number
             if neff == None:
                 if total != 0:
-                    print('Inserting {} as effective sample size. Make sure it is TOTAL Sample size if you are using continuous trait, or EFFECTIVE Sample size if binary trait\n'.format(total))
+                    print('Inserting {} as effective sample size. Make sure it is TOTAL Sample size if you are using quantitative trait, or EFFECTIVE Sample size if binary trait\n'.format(total))
                     df['N_eff'] = total
                 elif case_control != (0,0):
                     cs, ct = case_control 
@@ -126,7 +125,7 @@ class GPRS(object):
             df = df[['SNPID','CHR','POS','Effect_Allele','NonEffect_Allele','Beta','SE','Pvalue','N_eff' ]]
             pd.set_option('mode.chained_assignment', None)
             df[['Effect_Allele','NonEffect_Allele']] = df[['Effect_Allele','NonEffect_Allele']].astype(str).apply(lambda x: x.str.upper())
-            df = df.astype( dtype= {'CHR': int, 'POS': int, 'N_eff': int}, errors='raise')  
+            df = df.astype( dtype= {'CHR': int, 'POS': int, 'N_eff': int}, errors='ignore')  
             return df
         
         # if sumstat given as one file
@@ -184,37 +183,37 @@ class GPRS(object):
         print('\nProcessing Done. 22 summary statistics saved in result/sumstat folder!\n')
     
     # Using plink to generate bfiles fam/bim/bed.
-    def generate_plink_bfiles(self, merge, sumstat, output_name, symbol='.', extra_commands=" "):
+    def generate_plink_bfiles(self, merge, sumstat, out, symbol='.', extra_commands=" "):
         def run_plink_bfiles():
             visited = set()
-            if "{}_{}".format(chrnb, output_name)not in visited:
-                print("start to generate {}_{} bfiles".format(chrnb, output_name))
+            if "{}_{}".format(chrnb, out)not in visited:
+                print("Starting to generate {}_{} bfiles".format(chrnb, out))
                 os.system("plink --vcf {} --extract {} {} --make-bed --out {}".format(vcfinput, snp, extra_commands, output))
-            print("{}_{} bfile is ready!".format(chrnb, output_name))
-            visited.add("{}_{}".format(chrnb, output_name))
+            print("{}_{} bfile is ready!".format(chrnb, out))
+            visited.add("{}_{}".format(chrnb, out))
 
         if any("chr" in file and "{}".format(sumstat) in file for file in os.listdir(self.sumstat_dir)):
             # Generate chr number (chr1-chr22)
             for nb in range(1, 23):
                 chrnb = "chr{}".format(nb)
                 snp = "{}/{}_{}.csv".format(self.sumstat_dir, sumstat, chrnb)
-                output = "{}/{}_{}".format(self.plink_bfiles_dir, chrnb, output_name)
+                output = "{}/{}_{}".format(self.plink_bfiles_dir, chrnb, out)
                 for i in os.listdir(self.ref):
                         # The if condition here is to exclude chr X, Y, and MT, and make sure all inputs are consistent
                         # ex: The input should be chr1 snps-list and chr1 vcf reference
                         if i.endswith('.vcf.gz') and chrnb != "chrX" and chrnb != "chrY" and chrnb != "chrMT" and "{}{}".format(chrnb, symbol) in i:
                             vcfinput = "{}/{}".format(self.ref, i)
-                            print("summary statistics: {}, output: {}, vcfinput:{}\n start to generate bfiles".format(snp, output, vcfinput))
+                            print("summary statistics: {}, output: {}, vcfinput:{}\n".format(snp, output, vcfinput))
                             run_plink_bfiles()
         else:
-            print("ERROR: chromosome information are NOT found in snplists")
+            print("ERROR: chromosome information are NOT found in summary statistics")
         if merge:
             print("Merging 22 plink files...")
             with open("{}/merge.list".format(self.plink_bfiles_dir),'w') as o:
                 for chrnb in range(2,23):
-                   o.write("{}/chr{}_{}\n".format(self.plink_bfiles_dir, chrnb, output_name))
+                   o.write("{}/chr{}_{}\n".format(self.plink_bfiles_dir, chrnb, out))
             os.system("plink --bfile {}/chr1_{} --merge-list {}/merge.list --make-bed --out {}/merged_{}".format(
-                                    self.plink_bfiles_dir, output_name, self.plink_bfiles_dir, self.plink_bfiles_dir, output_name ))
+                                    self.plink_bfiles_dir, out, self.plink_bfiles_dir, self.plink_bfiles_dir, out ))
             print("Merged file saved!")
 
     def clump(self, sumstat, plink_bfile_name, output_name, clump_kb, clump_p1, clump_p2, clump_r2='0.1',
@@ -338,24 +337,10 @@ class GPRS(object):
                     print("{} not found skip".format(clump_snp_file))
         else:
             print("ERROR: chr information are not found")
-            # for nb in range(1, 23):
-            #     chrnb = "chr{}".format(nb)
-            #     clump_snp_file = ("{}/{}_{}/{}_{}_{}_clumped_snplist.csv".format(self.plink_clump_dir,
-            #                                                                      clumpfolder_name,
-            #                                                                      clump_conditions,
-            #                                                                      chrnb, clump_file_name,
-            #                                                                      clump_conditions))
-            #     output = "{}_{}_{}".format(chrnb, output_name, clump_conditions)
-            #     qc_files = "{}/{}.QC.csv".format(self.qc_dir, qc_file_name)
-            #     if os.path.exists("{}".format(clump_snp_file)):
-            #         print("clump_snp_file:{} \noutput:{} \nqc_files:{}".format(clump_snp_file, output, qc_files))
-            #         generate_qc_snplist()
-            #     else:
-            #         print("{} not found skip".format(clump_snp_file))
         print("All jobs are completed")
 
-    def ldpred2_train(self, bfile, sumstat, output_dir, h2='', ldref='', ldmatrix='./tmp-data/LD_matrix'):
-        command="Rscript --vanilla ./gprs/ldpred2.R --train {} --sumstat {} --output_dir {}/{}".format(bfile, sumstat,self.ldpred2_dir, output_dir)                                                                                        
+    def ldpred2_train(self, bfile, sumstat, out, r, h2='', ldref='', ldmatrix='./tmp-data/LD_matrix'):
+        command="{}script --vanilla ./gprs/ldpred2.R --train {} --sumstat {} --output_dir {}/{}".format(r, bfile, sumstat,self.ldpred2_dir, out)                                                                                        
         if len(ldref) > 0 :
             command += " --LDref {}".format(ldref)
         if ldmatrix != './tmp-data/LD_matrix':
@@ -439,7 +424,7 @@ gprs build-prs --vcf_dir {} --model""".format(
                     columns='1 4 6', plink_modifier="no-mean-imputation cols=nmissallele,dosagesum,scoresums",
                     combine='T'):            
         # create output folder per model with same name
-        os.mkdir("{}/{}".format(out, model))
+        os.makedirs("{}/{}".format(out, model), exist_ok=True)
         # read in list of beta directories and path dictionary
         beta_list_file = pd.read_csv(beta_dir_list, header=None, sep='\t', index_col=0, squeeze=True)
         beta_list = beta_list_file.T.to_dict()
