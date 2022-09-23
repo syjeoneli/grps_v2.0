@@ -105,7 +105,7 @@ class GPRS(object):
         
         # function to unify format
         def unify(df, columns, neff, total, case_control):
-            #fill in N_eff if given as number
+            # fill in N_eff if given as number
             if neff == None:
                 if total != 0:
                     print('Inserting {} as effective sample size. Make sure it is TOTAL Sample size if you are using quantitative trait, or EFFECTIVE Sample size if binary trait\n'.format(total))
@@ -115,11 +115,14 @@ class GPRS(object):
                     print('\nUsing {} and {} to calculate effective sample size. Make sure you are using BINARY trait'.format(cs,ct))
                     print('Formula: 4 / (1 / case + 1 / control)\n')
                     df['N_eff'] = int(4/(1/cs + 1/ct))
-            # fill in missing column as NA
-            for col in columns.keys():
-                if col not in list(df):
-                    print('WARNING: Header for {} not provided (will be recorded as NA)'.format(col))
-                    df[col]='NA'                
+            # STILL TESTING change effect alleles to be risk alleles
+            # if 'Beta' and 'Effect_Allele' and 'NonEffect_Allele' in list(df):
+            #     df['Beta'] = np.where(df['Beta']< 0, -1 * df['Beta'], df['Beta'])
+            # # fill in missing column as NA
+            # for col in columns.keys():
+            #     if col not in list(df):
+            #         print('WARNING: Header for {} not provided (will be recorded as NA)'.format(col))
+            #         df[col]='NA'                
 
             # filter, re-order, unify dtypes columns
             df = df[['SNPID','CHR','POS','Effect_Allele','NonEffect_Allele','Beta','SE','Pvalue','N_eff' ]]
@@ -446,11 +449,11 @@ gprs build-prs --vcf_dir {} --model""".format(
                 # Define vcf file
                 for vcf_file in os.listdir(vcf_dir):
                     if vcf_file.endswith('.vcf.gz') and "{}{}".format(chrnb, symbol) in vcf_file:
-                        os.system("plink2 --vcf {}/{} dosage=DS --score {}/{} {} {} --memory {} --out {}/{}/{}_{}".format(
-                                                                            vcf_dir, vcf_file,
-                                                                            beta_list[model], beta_file, columns, plink_modifier,
-                                                                            memory,
-                                                                            out,model, chrnb, model))
+                        # os.system("plink2 --vcf {}/{} dosage=DS --score {}/{} {} {} --memory {} --out {}/{}/{}_{}".format(
+                        #                                                     vcf_dir, vcf_file,
+                        #                                                     beta_list[model], beta_file, columns, plink_modifier,
+                        #                                                     memory,
+                        #                                                     out,model, chrnb, model))
                         print("{}_{}.sscore saved in {}/{}".format(chrnb, model, out, model))
                         file = pd.read_csv('{}/{}/{}_{}.sscore'.format(out, model, chrnb, model), sep='\t')
                         file.rename(columns={'SCORE1_SUM':'SCORE_{}'.format(chrnb), 'NMISS_ALLELE_CT':'ALLELE_CT_{}'.format(chrnb)}, inplace=True)
@@ -465,7 +468,8 @@ gprs build-prs --vcf_dir {} --model""".format(
             all['TOTAL_ALLELE_CT']=all.filter(like='ALLELE_CT').sum(axis=1)
             print('Summary for scores...')
             print(all[['SCORE_SUM']].describe())
-            all[['#IID', 'SCORE_SUM', 'TOTAL_ALLELE_CT']].to_csv('{}/{}.sscore'.format(out, model), index=False, sep='\t')
+            all = all.assign( SCORE_STD = (all.SCORE_SUM-all.SCORE_SUM.mean())/all.SCORE_SUM.std() )
+            all[['#IID', 'SCORE_SUM', 'SCORE_STD','TOTAL_ALLELE_CT']].to_csv('{}/{}.sscore'.format(out, model), index=False, sep='\t')
             print('Done! Combined score for "{}" model saved'.format(model))
 
     # Calculate the PRS statistical results and output the statistics summary
