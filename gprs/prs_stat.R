@@ -122,8 +122,8 @@ if(family == 'binary'){
     OR4<-OddsRatio(cont.table4)
     
     # result dataframe
-    stat <- data.frame( Model = model_name, P=prs.coef[4],
-		            Beta=prs.coef[1], SE=prs.coef[2], OR=exp(prs.coef[1]), 
+    stat <- data.frame( Model = model_name, MAX_SNP_CT = ceiling(max(score$TOTAL_ALLELE_CT)/2), 
+                P=prs.coef[4], Beta=prs.coef[1], SE=prs.coef[2], OR=exp(prs.coef[1]), 
                 AUC=myroc$auc, PseudoR2=prs.pseudor2, LiabilityR2=prs.leesr2,
 		            N=length(prs$PHENO), N_cas=sum(prs$PHENO=='CASE'), N_ctrl=sum(prs$PHENO=='CONTROL'),  
                 OR_top1_to_middle20=OR1,OR_top2_to_middle20=OR2,OR_top5_to_middle20=OR3,OR_top10_to_middle20=OR4)
@@ -133,8 +133,8 @@ if(family == 'binary'){
       lnr <- glm(PHENO~., data=prs[,-c(1)], family="gaussian")
       prs.coef <- summary(lnr)$coeff["SCORE_SUM",]
       prs.obs_r2<-cor(predict(lnr), as.numeric(prs$PHENO))^2
-      stat <- data.frame( Model = model_name, P=prs.coef[4],
-                          Beta=prs.coef[1], SE=prs.coef[2], R2=prs.obs_r2, N=length(prs$PHENO) )
+      stat <- data.frame( Model = model_name, MAX_SNP_CT = ceiling(max(score$TOTAL_ALLELE_CT)/2),
+                          P=prs.coef[4], Beta=prs.coef[1], SE=prs.coef[2], R2=prs.obs_r2, N=length(prs$PHENO) )
 }
 
 write.table( format(stat, digits=3), paste0(output_name, ".stat"), row.names = F, quote = F, sep=" ")
