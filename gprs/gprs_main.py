@@ -7,9 +7,8 @@ import pandas as pd
 from pathlib import Path
 from subprocess import call
 from collections import defaultdict
-
 from sklearn.utils import column_or_1d
-
+from gprs.timer import *
 
 class GPRS(object):
     def __init__(self,
@@ -89,6 +88,9 @@ class GPRS(object):
     def prepare_sumstat(self, file, sumstat, out, symbol='.', comment='',
                         snpid=None, chr=None, pos=None, ea=None, nea=None, beta=None, se=None, pval=None, neff=None,
                         total=0, case_control=(0,0)):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: prepare-sumstat")
         # dict for column name mapping        
         columns = {
             'SNPID': snpid,
@@ -115,15 +117,11 @@ class GPRS(object):
                     print('\nUsing {} and {} to calculate effective sample size. Make sure you are using BINARY trait'.format(cs,ct))
                     print('Formula: 4 / (1 / case + 1 / control)\n')
                     df['N_eff'] = int(4/(1/cs + 1/ct))
-            # STILL TESTING change effect alleles to be risk alleles
-            # if 'Beta' and 'Effect_Allele' and 'NonEffect_Allele' in list(df):
-            #     df['Beta'] = np.where(df['Beta']< 0, -1 * df['Beta'], df['Beta'])
-            # # fill in missing column as NA
-            # for col in columns.keys():
-            #     if col not in list(df):
-            #         print('WARNING: Header for {} not provided (will be recorded as NA)'.format(col))
-            #         df[col]='NA'                
-
+            # fill in missing column as NA
+            for col in columns.keys():
+                if col not in list(df):
+                    print('WARNING: Header for {} not provided (will be recorded as NA)'.format(col))
+                    df[col]='NA'                
             # filter, re-order, unify dtypes columns
             df = df[['SNPID','CHR','POS','Effect_Allele','NonEffect_Allele','Beta','SE','Pvalue','N_eff' ]]
             pd.set_option('mode.chained_assignment', None)
@@ -183,10 +181,14 @@ class GPRS(object):
                         outfile="{}/{}_chr{}.csv".format(self.sumstat_dir, out, chrnb)
                         df[df.CHR == chrnb].to_csv(outfile, index=False, sep='\t', header=True)
 
-        print('\nProcessing Done. 22 summary statistics saved in result/sumstat folder!\n')
+        print('\nAnlysis finished. 22 summary statistics saved in result/sumstat folder!\n')
     
     # Using plink to generate bfiles fam/bim/bed.
     def generate_plink_bfiles(self, merge, sumstat, out, symbol='.', extra_commands=" "):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: generate-plink-bfiles")
+
         def run_plink_bfiles():
             visited = set()
             if "{}_{}".format(chrnb, out)not in visited:
@@ -221,6 +223,10 @@ class GPRS(object):
 
     def clump(self, sumstat, plink_bfile_name, output_name, clump_kb, clump_p1, clump_p2, clump_r2='0.1',
               clump_field='Pvalue', clump_snp_field='SNPID'):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: clump ")
+
         # Create a C+T tag
         output_name_with_conditions = "{}_{}_{}_{}".format(output_name, clump_kb, clump_p1, clump_r2)
 
@@ -272,6 +278,10 @@ class GPRS(object):
         print("All chromosome clumping finished!")
 
     def select_clump_snps(self, sumstat, clump_file_name, clumpfolder_name, output_name, clump_kb, clump_p1, clump_r2):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: select-clump-snps")
+
         # Create a C+T tag
         clump_conditions = "{}_{}_{}".format(clump_kb, clump_p1, clump_r2)
 
@@ -343,6 +353,10 @@ class GPRS(object):
         print("All jobs are completed")
 
     def ldpred2_train(self, bfile, sumstat, out, r, h2='', ldref='', ldmatrix='./tmp-data/LD_matrix'):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: ldpred2-train")
+
         command="{}script --vanilla ./gprs/ldpred2.R --train {} --sumstat {} --output_dir {}/{}".format(r, bfile, sumstat,self.ldpred2_dir, out)                                                                                        
         if len(ldref) > 0 :
             command += " --LDref {}".format(ldref)
@@ -355,6 +369,9 @@ class GPRS(object):
 
     #make beta list for multiple_prs function.
     def beta_list(self, beta_dirs, out):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: beta-list")
         beta_dirs = beta_dirs.split()
         print('Iterating {} beta directoreis..'.format( len(beta_dirs)))
         allmodels={}
@@ -375,6 +392,9 @@ class GPRS(object):
                 symbol='.',
                 columns='1 4 6', plink_modifier='no-mean-imputation cols=nmissallele,dosagesum,scoresums',
                 combine='T', out=''):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: multiple-prs")
     # read in list of beta directories and path dictionary
         print('Reading list of beta directories..{}'.format(beta_dir_list))
         beta_list_file = pd.read_csv(beta_dir_list, header=None, sep='\t', index_col=0, squeeze=True)
@@ -426,6 +446,10 @@ gprs build-prs --vcf_dir {} --model""".format(
                     symbol='.',
                     columns='1 4 6', plink_modifier="no-mean-imputation cols=nmissallele,dosagesum,scoresums",
                     combine='T'):            
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: build-prs")
+
         # create output folder per model with same name
         os.makedirs("{}/{}".format(out, model), exist_ok=True)
         # read in list of beta directories and path dictionary
@@ -474,6 +498,10 @@ gprs build-prs --vcf_dir {} --model""".format(
 
     # Calculate the PRS statistical results and output the statistics summary
     def prs_stat(self, score, pheno, data, model, binary, pop_prev, plotroc, r):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: prs-stat")
+
         if os.path.exists(score):
             if binary:
                 family = 'binary'
@@ -499,6 +527,10 @@ gprs build-prs --vcf_dir {} --model""".format(
 
     # In combine_prs_stat function is to combine PRS statistical results as one file
     def combine_stat(self, data):
+        start=time()
+        atexit.register(exitlog, start)
+        log("Starting Analysis: combine-sumstat")
+
         target_files = [i for i in glob.glob("{}/{}/*.stat".format(self.stat_dir, data))]
         print("Combining : \n\t{}".format("\n\t".join(target_files)))
         # Combine all the csv files
