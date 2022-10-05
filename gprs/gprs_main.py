@@ -1,12 +1,12 @@
 import sys
-import os
 import glob
+import os
 import random
-import pandas as pd
+from collections import defaultdict
 from pathlib import Path
 from subprocess import call
-from timeit import default_timer as timer
-from collections import defaultdict
+
+import pandas as pd
 
 from sklearn.utils import column_or_1d
 
@@ -25,7 +25,7 @@ class GPRS(object):
         self.sumstat_dir = '{}/{}'.format(self.result_dir, 'sumstat')
         self.plink_dir = '{}/{}'.format(self.result_dir, 'plink')
         self.pop_dir = '{}/{}'.format(self.result_dir, 'pop')
-        self.random_draw_sample_dir = '{}/{}'.format(self.result_dir, 'random_draw_sample')
+        # self.random_draw_sample_dir = '{}/{}'.format(self.result_dir, 'random_draw_sample')
         self.stat_dir = '{}/{}'.format(self.result_dir, 'stat')
         self.plink_bfiles_dir = '{}/{}'.format(self.plink_dir, 'bfiles')
         self.plink_clump_dir = '{}/{}'.format(self.plink_dir, 'clump')
@@ -45,6 +45,7 @@ class GPRS(object):
         self.create_stat_dir()
         self.create_random_draw_sample_dir()
         self.create_ldpred2_dir()
+
 
     def create_result_dir(self):  # A function to create result folder
         if not os.path.exists(self.result_dir):
@@ -78,9 +79,9 @@ class GPRS(object):
         if not os.path.exists(self.ct_dir):
             os.mkdir(self.ct_dir)
 
-    def create_random_draw_sample_dir(self):
-        if not os.path.exists(self.random_draw_sample_dir):
-            os.mkdir(self.random_draw_sample_dir)
+    # def create_random_draw_sample_dir(self):
+    #     if not os.path.exists(self.random_draw_sample_dir):
+    #         os.mkdir(self.random_draw_sample_dir)
 
     def create_ldpred2_dir(self):
         if not os.path.exists(self.ldpred2_dir):
@@ -257,16 +258,6 @@ class GPRS(object):
                     print("Warning: {}.bim not found. Moving on to next file".format(plinkinput))
         else:
              print("ERROR: cannot file summary statistic files")
-        #     for nb in range(1, 23):
-        #         chrnb = "chr{}".format(nb)
-        #         qc_files = "{}.QC.csv".format(qc_file_name)
-        #         output = "{}/{}/{}_{}".format(self.plink_clump_dir, output_name_with_conditions, chrnb, output_name_with_conditions)
-        #         plinkinput = "{}/{}_{}.bim".format(self.plink_bfiles_dir, chrnb, plink_bfile_name).split(".")[0]
-        #         if os.path.exists("{}.bim".format(plinkinput)):
-        #             print("qc_files:{} \noutput:{} \nplinkinput:{}".format(qc_files, output, plinkinput))
-        #             run_plink()
-        #         else:
-        #             print("{}.bim not found. Move to next file".format(plinkinput))
         print("All chromosome clumping finished!")
 
     def select_clump_snps(self, sumstat, clump_file_name, clumpfolder_name, output_name, clump_kb, clump_p1, clump_r2):
@@ -504,7 +495,7 @@ gprs build-prs --vcf_dir {} --model""".format(
             call("{0}script --vanilla ./gprs/prs_stat.R {1} {2} {3} {4} {5} {6} {7}/{8}/{1}".format(r, model, score, pheno,
                                                                             family, pop_prev, plotroc, 
                                                                             self.stat_dir, data), shell=True)
-        else:
+       else:
             print("{} not found. Please check the sscore again".format(score))
 
 
