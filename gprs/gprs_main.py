@@ -194,7 +194,7 @@ class GPRS(object):
             if "{}_{}".format(chrnb, out)not in visited:
                 print("Starting to generate {}_{} bfiles".format(chrnb, out))
                 os.system("plink --vcf {} --extract {} {} --make-bed --out {}".format(vcfinput, snp, extra_commands, output))
-            print("{}_{} bfile is ready!".format(chrnb, out))
+                print("{}_{} bfile is ready!".format(chrnb, out))
             visited.add("{}_{}".format(chrnb, out))
 
         if any("chr" in file and "{}".format(sumstat) in file for file in os.listdir(self.sumstat_dir)):
@@ -219,6 +219,8 @@ class GPRS(object):
                    o.write("{}/chr{}_{}\n".format(self.plink_bfiles_dir, chrnb, out))
             os.system("plink --bfile {}/chr1_{} --merge-list {}/merge.list --make-bed --out {}/merged_{}".format(
                                     self.plink_bfiles_dir, out, self.plink_bfiles_dir, self.plink_bfiles_dir, out ))
+            with open(r"{}/merged_{}.bim".format(self.plink_bfiles_dir, out),'r') as f:
+                print('Total number of SNPs extracted: ', len(f.readlines()))
             print("Merged file saved!")
 
     def clump(self, sumstat, plink_bfile_name, output_name, clump_kb, clump_p1, clump_p2, clump_r2='0.1',
@@ -355,7 +357,7 @@ class GPRS(object):
     def ldpred2_train(self, bfile, sumstat, out, r, h2='', ldref='', ldmatrix='./tmp-data/LD_matrix'):
         start=time()
         atexit.register(exitlog, start)
-        log("Starting Analysis: ldpred2-train")
+#        log("Starting Analysis: ldpred2-train")
 
         command="{}script --vanilla ./gprs/ldpred2.R --train {} --sumstat {} --output_dir {}/{}".format(r, bfile, sumstat,self.ldpred2_dir, out)                                                                                        
         if len(ldref) > 0 :

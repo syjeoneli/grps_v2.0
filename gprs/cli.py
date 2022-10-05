@@ -142,8 +142,8 @@ def select_clump_snps(clump_file_name, sumstat,output_name,clump_kb,clump_p1,clu
 
 @click.command()
 @click.option( '--bfile', metavar='<str>', required=True, help='prefix to all chromosome-merged plink file for training sample including path')
-@click.option( '--LDref', metavar='<str>', default='', help='prefix to all chromosome-merged plink file for external LD reference sample including path')
-@click.option( '--LDmatrix', metavar='<str>', default='./tmp-data/LD_matrix', help='Path to LD matrix directory')
+@click.option( '--LDref', metavar='<str>', default='', help='prefix to all chromosome-merged plink file for external LD reference sample including full path')
+@click.option( '--LDmatrix', metavar='<str>', default='./tmp-data/LD_matrix', help='Path to save the LD matrix')
 @click.option( '--sumstat', metavar='<str>', required=True, help='prefix to GWAS by-chromosome summary statistics including full path')
 @click.option( '--out', metavar='<str>', required=True, help='directory name to output beta files')
 @click.option( '--r', metavar='<str>', required=True, help='path for R program. Use "which R" in linux to check')
