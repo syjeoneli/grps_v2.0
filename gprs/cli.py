@@ -1,7 +1,7 @@
 import click
 from gprs.gprs_main import GPRS
-from gprs.gwas_model import GwasModel
-from gprs.gene_atlas_model import GeneAtlasModel
+# from gprs.gwas_model import GwasModel
+# from gprs.gene_atlas_model import GeneAtlasModel
 
 @click.group()
 def main():
@@ -26,7 +26,7 @@ def main():
 @click.option('--se', metavar='<str>', default=None, help='Column header name for STANDARD ERROR in sumstat')
 @click.option('--pval', metavar='<str>', default=None, help='Column header name for P-VALUE in sumstat')
 @click.option('--neff', metavar='<str>', default=None, help='Column header name for EFFECTIVE SAMPLE SIZE in sumstat')
-@click.option('--total', metavar='<int>', default=0, help='Total sample size for continuous trait; DO NOT use with --Neff or --case_control')
+@click.option('--total', metavar='<int>', default=0, help='Total sample size for quantitative trait; DO NOT use with --Neff or --case_control')
 @click.option('--case_control', metavar='<int>', nargs=2, default=(0,0), help='Case and control sample size for binary trait, separated by a space (order does not matter); DO NOT use with --Neff or --total')
 def prepare_sumstat( file, sumstat, comment, symbol, out, snpid, chr, pos, ea, nea,  beta, se, pval, neff, total, case_control ):
    gprs = GPRS()
@@ -38,73 +38,73 @@ def prepare_sumstat( file, sumstat, comment, symbol, out, snpid, chr, pos, ea, n
                         snpid=snpid, chr=chr, pos=pos, ea=ea, nea=nea, beta=beta, se=se, pval=pval, neff=neff,
                         total=total, case_control=case_control)
 
-@click.command()
-@click.option( '--ref', metavar='<str>', help='path to population reference panel' )
-@click.option( '--data_dir', metavar='<str>', required=True, help='The directory of GeneAtlas .csv files (all chromosomes)' )
-@click.option( '--result_dir', metavar='<str>', default='./result', help='path to output folder; default:[./result]' )
-@click.option( '--snp_id_header', metavar='<str>', required=True, help='SNP ID column name in GeneAtlas original file' )
-@click.option( '--allele_header', metavar='<str>', required=True, help='ALLELE column name in GeneAtlas original file' )
-@click.option( '--beta_header', metavar='<str>', required=True, help='BETA column name in GeneAtlas original file' )
-@click.option( '--se_header', metavar='<str>', required=True, help='StdErr column name in GeneAtlas original file' )
-@click.option( '--pvalue_header', metavar='<str>', required=True, help='P-value column name in GeneAtlas original file' )
-@click.option( '--output_name', metavar='<str>', default='geneatlas_model', help='output name; default: "geneatlas"; the output file name is [chrnb]_[output_name].csv and [chrnb]_[output_name].QC.csv' )
-@click.option( '--pvalue', metavar='<float/scientific notation>', default=1, help='P-value threshold' )
-def geneatlas_filter_data(ref,data_dir, result_dir, snp_id_header,
-                          allele_header,
-                          beta_header,
-                          se_header,
-                          pvalue_header,
-                          output_name,
-                          pvalue):
-    gene_atlas = GeneAtlasModel( ref=ref, data_dir=data_dir, result_dir=result_dir )
-    gene_atlas.filter_data( snp_id_header=snp_id_header,
-                            allele_header=allele_header,
-                            beta_header=beta_header,
-                            se_header=se_header,
-                            pvalue_header=pvalue_header,
-                            output_name=output_name,
-                            pvalue=pvalue )
+# @click.command()
+# @click.option( '--ref', metavar='<str>', help='path to population reference panel' )
+# @click.option( '--data_dir', metavar='<str>', required=True, help='The directory of GeneAtlas .csv files (all chromosomes)' )
+# @click.option( '--result_dir', metavar='<str>', default='./result', help='path to output folder; default:[./result]' )
+# @click.option( '--snp_id_header', metavar='<str>', required=True, help='SNP ID column name in GeneAtlas original file' )
+# @click.option( '--allele_header', metavar='<str>', required=True, help='ALLELE column name in GeneAtlas original file' )
+# @click.option( '--beta_header', metavar='<str>', required=True, help='BETA column name in GeneAtlas original file' )
+# @click.option( '--se_header', metavar='<str>', required=True, help='StdErr column name in GeneAtlas original file' )
+# @click.option( '--pvalue_header', metavar='<str>', required=True, help='P-value column name in GeneAtlas original file' )
+# @click.option( '--output_name', metavar='<str>', default='geneatlas_model', help='output name; default: "geneatlas"; the output file name is [chrnb]_[output_name].csv and [chrnb]_[output_name].QC.csv' )
+# @click.option( '--pvalue', metavar='<float/scientific notation>', default=1, help='P-value threshold' )
+# def geneatlas_filter_data(ref,data_dir, result_dir, snp_id_header,
+#                           allele_header,
+#                           beta_header,
+#                           se_header,
+#                           pvalue_header,
+#                           output_name,
+#                           pvalue):
+#     gene_atlas = GeneAtlasModel( ref=ref, data_dir=data_dir, result_dir=result_dir )
+#     gene_atlas.filter_data( snp_id_header=snp_id_header,
+#                             allele_header=allele_header,
+#                             beta_header=beta_header,
+#                             se_header=se_header,
+#                             pvalue_header=pvalue_header,
+#                             output_name=output_name,
+#                             pvalue=pvalue )
+
+# @click.command()
+# @click.option( '--ref', metavar='<str>', help='path to population reference panel' )
+# @click.option( '--data_dir', metavar='<str>', required=True, help='path to GWAS catalog summary statistic .csv file (all chromosomes)' )
+# @click.option( '--result_dir', metavar='<str>', default='./result', help='path to output folder, default: "./result"' )
+# @click.option( '--snp_id_header', metavar='<str>', required=True, help='SNP ID column name in GWAS catalog original file' )
+# @click.option( '--allele_header', metavar='<str>', required=True, help='ALLELE column name in GWAS catalog original file' )
+# @click.option( '--beta_header', metavar='<str>', required=True, help='BETA column name in GWAS catalog original file' )
+# @click.option( '--se_header', metavar='<str>', required=True, help='StdErr column name in GWAS catalog original file' )
+# @click.option( '--pvalue_header', metavar='<str>', required=True, help='P-value column name in GWAS catalog original file' )
+# @click.option( '--file_name', metavar='<str>', default='gwas_model', help='raw data file name' )
+# @click.option( '--output_name', metavar='<str>', default='gwas_model', help='output name; default: "gwas"; the output file name is [chrnb]_[output_name].csv and [chrnb]_[output_name].QC.csv' )
+# @click.option( '--pvalue', metavar='<float/scientific notation>', default=1, help='P-value threshold for filtering SNPs' )
+# def gwas_filter_data(ref, data_dir, result_dir, snp_id_header,
+#                      allele_header,
+#                      beta_header,
+#                      se_header,
+#                      pvalue_header,
+#                      output_name,
+#                      pvalue,
+#                      file_name):
+#     gwas = GwasModel( ref=ref, data_dir=data_dir, result_dir=result_dir )
+#     gwas.filter_data( snp_id_header=snp_id_header,
+#                       allele_header=allele_header,
+#                       beta_header=beta_header,
+#                       se_header=se_header,
+#                       pvalue_header=pvalue_header,
+#                       output_name=output_name,
+#                       pvalue=pvalue,
+#                       file_name=file_name)
 
 @click.command()
-@click.option( '--ref', metavar='<str>', help='path to population reference panel' )
-@click.option( '--data_dir', metavar='<str>', required=True, help='path to GWAS catalog summary statistic .csv file (all chromosomes)' )
-@click.option( '--result_dir', metavar='<str>', default='./result', help='path to output folder, default: "./result"' )
-@click.option( '--snp_id_header', metavar='<str>', required=True, help='SNP ID column name in GWAS catalog original file' )
-@click.option( '--allele_header', metavar='<str>', required=True, help='ALLELE column name in GWAS catalog original file' )
-@click.option( '--beta_header', metavar='<str>', required=True, help='BETA column name in GWAS catalog original file' )
-@click.option( '--se_header', metavar='<str>', required=True, help='StdErr column name in GWAS catalog original file' )
-@click.option( '--pvalue_header', metavar='<str>', required=True, help='P-value column name in GWAS catalog original file' )
-@click.option( '--file_name', metavar='<str>', default='gwas_model', help='raw data file name' )
-@click.option( '--output_name', metavar='<str>', default='gwas_model', help='output name; default: "gwas"; the output file name is [chrnb]_[output_name].csv and [chrnb]_[output_name].QC.csv' )
-@click.option( '--pvalue', metavar='<float/scientific notation>', default=1, help='P-value threshold for filtering SNPs' )
-def gwas_filter_data(ref, data_dir, result_dir, snp_id_header,
-                     allele_header,
-                     beta_header,
-                     se_header,
-                     pvalue_header,
-                     output_name,
-                     pvalue,
-                     file_name):
-    gwas = GwasModel( ref=ref, data_dir=data_dir, result_dir=result_dir )
-    gwas.filter_data( snp_id_header=snp_id_header,
-                      allele_header=allele_header,
-                      beta_header=beta_header,
-                      se_header=se_header,
-                      pvalue_header=pvalue_header,
-                      output_name=output_name,
-                      pvalue=pvalue,
-                      file_name=file_name)
-
-@click.command()
+@click.option( '--ref', metavar='<str>', required=True, help='directory containing chromosome-separated vcf files for LD reference panel' )
+@click.option( '--sumstat', metavar='<str>', required=True, help='prefix to summary statistics files outputted from perepare_sumstat function.' )
+@click.option( '--out', metavar='<str>', required=True, help='prefix for output plink files' )
+@click.option( '--symbol', metavar='<str/int>', default='.', help='indicate the symbol or text after chrnb in vcf file, default = "." ; i.e. ALL.chr8.vcf.gz, you can put "." or ".vcf.gz"' )
+@click.option( '--extra_commands', metavar='<str>', default=' ', help='argument to add for plink 1 make-bed function' )
 @click.option('--merge/--no-merge', default=True, help='Whether to keep or skip merging step; use with --no-merge flag if not using LDPred2 model')
-@click.option( '--ref', metavar='<str>', required=True, help='path to population reference panel' )
-@click.option( '--sumstat', metavar='<str>', required=True, help='prefix to summary statistics file from perepare_sumstat function.' )
-@click.option( '--output_name', metavar='<str>', required=True, help='it is better if the output name should be the same as snplist file name' )
-@click.option( '--symbol', metavar='<str/int>', required=True, default='.', help='indicate the symbol or text after chrnb in vcf file, default = "." ; i.e. ALL.chr8.vcf.gz, you can put "." or ".vcf.gz"' )
-@click.option( '--extra_commands', metavar='<str>', default=' ', help='a space to add new functions for generate the plink bfiles' )
-def generate_plink_bfiles( merge, ref, sumstat, output_name, symbol,extra_commands):
+def generate_plink_bfiles( merge, ref, sumstat, out, symbol,extra_commands):
     gprs = GPRS( ref=ref)
-    gprs.generate_plink_bfiles( merge = merge, output_name = output_name, symbol = symbol, sumstat=sumstat, extra_commands=extra_commands )
+    gprs.generate_plink_bfiles( merge = merge, out = out, symbol = symbol, sumstat=sumstat, extra_commands=extra_commands )
 
 @click.command()
 @click.option( '--plink_bfile_name', metavar='<str>', required=True, help='plink_bfile_name is [output_name] from [chrnb]_[output_name].bim/bed/fam' )
@@ -141,24 +141,26 @@ def select_clump_snps(clump_file_name, sumstat,output_name,clump_kb,clump_p1,clu
                             clump_kb=clump_kb,clump_p1=clump_p1,clump_r2=clump_r2,clumpfolder_name=clumpfolder_name)
 
 @click.command()
-@click.option( '--bfile', metavar='<str>', required=True, help='prefix to training PLINK files including full path')
-@click.option( '--LDref', metavar='<str>', default='', help='If using external LD reference, provide directory for a PLINK file with all chromsome merged')
+@click.option( '--bfile', metavar='<str>', required=True, help='prefix to all chromosome-merged plink file for training sample including path')
+@click.option( '--LDref', metavar='<str>', default='', help='prefix to all chromosome-merged plink file for external LD reference sample including path')
 @click.option( '--LDmatrix', metavar='<str>', default='./tmp-data/LD_matrix', help='Path to LD matrix directory')
 @click.option( '--sumstat', metavar='<str>', required=True, help='prefix to GWAS by-chromosome summary statistics including full path')
-@click.option( '--output_dir', metavar='<str>', required=True, help='directory name to output beta files')
+@click.option( '--out', metavar='<str>', required=True, help='directory name to output beta files')
+@click.option( '--r', metavar='<str>', required=True, help='path for R program. Use "which R" in linux to check')
 @click.option( '--h2', metavar='<float>', default='', help='heritability estimate')
-def ldpred2_train(bfile, ldref, ldmatrix, sumstat, output_dir, h2):
+def ldpred2_train(bfile, ldref, ldmatrix, sumstat, out, r, h2):
     gprs=GPRS()
     gprs.ldpred2_train(bfile=bfile, 
                         ldref=ldref,
                         ldmatrix=ldmatrix,
                         sumstat=sumstat,
-                        output_dir=output_dir,
+                        out=out,
+                        r=r,
                         h2=h2)
 
 
 @click.command()
-@click.option( '--beta_dirs', metavar='<str>', required=True, help='list of beta directories to compute PRS with, separated by space')
+@click.option( '--beta_dirs', metavar='<str>', required=True, help="list of beta directories to compute PRS with. If more than one, separate by a space end enclose with ' ' ")
 @click.option( '--out',metavar='<str>', required=True, help='prefix for output .list file')
 def beta_list(beta_dirs, out):
     gprs = GPRS()
@@ -166,15 +168,15 @@ def beta_list(beta_dirs, out):
 
 @click.command()
 @click.option( '--vcf_dir', metavar='<str>', required=True, help='path to directories containing vcf files')
-@click.option( '--beta_dir_list', metavar='<str>', required=True, help='list of beta directories created from beta-list function. If not moved, it is in ./result/prs ')
+@click.option( '--beta_dir_list', metavar='<str>', required=True, help='dictionary = of beta directories created from beta-list function; in ./result/prs by default')
 @click.option( '--slurm_name', metavar='<str>', required=True, help='slurm job name')
-@click.option( '--slurm_account', metavar='<str>', required=True, default='chia657_28', help='slurm job account; default="chia657_28" ')
-@click.option( '--slurm_time', metavar='<str>', required=True, default='12:00:00', help='slurm job time; default="12:00:00" ')
-@click.option( '--memory', metavar='<int>',required=True, default=10, help='slurm job memory in GB; default="10" ')
-@click.option( '--symbol', metavar='<str>', required=True, default='.', help='symbol or text after chrnb in vcf file, default = "." ; i.e. ALL.chr8.vcf.gz, you can put "." or ".vcf.gz"')
+@click.option( '--slurm_account', metavar='<str>', default='chia657_28', help='slurm job account; default="chia657_28" ')
+@click.option( '--slurm_time', metavar='<str>', default='12:00:00', help='slurm job time; default="12:00:00" ')
+@click.option( '--memory', metavar='<int>',default=10, help='slurm job memory in GB; default="10" ')
+@click.option( '--symbol', metavar='<str>', default='.', help='symbol or text after chrnb in vcf file, default = "." ; i.e. ALL.chr8.vcf.gz, you can put "." or ".vcf.gz"')
 @click.option( '--columns', metavar='<int>', default='1 4 6', help='a column index indicate the [SNPID] [ALLELE] [BETA] position; column nb starts from 1; default="1 4 6"' )
-@click.option( '--plink_modifier', metavar='<str>', required=True, default="'no-mean-imputation' 'cols='nmissallele,dosagesum,scoresums", help='plink2 modifier for score function')
-@click.option( '--combine', metavar='<str>', required=True, default='T', help='whether to combine scores per chromosomes to generate a final genome-wide PRS (T/F); default="T" ')
+@click.option( '--plink_modifier', metavar='<str>', default="'no-mean-imputation' 'cols='nmissallele,dosagesum,scoresums", help='plink2 modifier for score function')
+@click.option( '--combine', metavar='<str>',  default='T', help='whether to combine scores per chromosomes to generate a final genome-wide PRS (T/F); default="T" ')
 @click.option( '--out', metavar='<str>', required=True, default='', help='directory name to output PRS')
 def multiple_prs(vcf_dir, beta_dir_list, slurm_name, slurm_account, slurm_time, memory, symbol, columns, plink_modifier, combine, out):
     gprs=GPRS()
@@ -193,7 +195,7 @@ def multiple_prs(vcf_dir, beta_dir_list, slurm_name, slurm_account, slurm_time, 
 @click.command()
 @click.option( '--vcf_dir', metavar='<str>', required=True, help='path to vcf files' )
 @click.option( '--model', metavar='<str>', required=True, help='model to use to generate PRS')
-@click.option( '--beta_dir_list', metavar='<str>', required=True, help='list of beta directories created from beta-list function, used to look up the path for specified PRS model')
+@click.option( '--beta_dir_list', metavar='<str>', required=True, help='dictionary of beta directories created from beta-list function, used to look up the path for specified PRS model')
 @click.option( '--memory', metavar='<int>', help='number of memory use' )
 @click.option( '--out', metavar='<str>', required=True, default='', help='directory name to output PRS')
 @click.option( '--symbol', metavar='<str/int>', required=True,default='.', help='indicate the symbol or text after chrnb in vcf file, default = "." ; i.e. ALL.chr8.vcf.gz, you can put "." or ".vcf.gz"' )
@@ -225,11 +227,11 @@ def combine_prs(filename,clump_kb,clump_p1,clump_r2):
 @click.option( '--score', metavar='<str>', required=True, help='the absolute path to combined .sscore file')
 @click.option( '--pheno', metavar='<str>', required=True, help='the absolute path to pheno file')
 @click.option( '--data', metavar='<str>', required=True, help='output directory name to save the statistics. Recommended to keep it the same for one dataset for combine-stat function')
-@click.option( '--model', metavar='<str>', required=True, help='the model name to be used for output. Recommended to include parameters for the model used to build PRS')
+@click.option( '--model', metavar='<str>', required=True, help=' model name for output. Recommended to include parameters for the model used to build PRS')
 @click.option( '--r', metavar='<str>', required=True, help='use "which R" in linux, and copy the path after --r_command')
 @click.option('--binary/--quantitative', default=False, help='whether phenotype is binary or quantitative; default: --quantitative')
 @click.option( '--pop_prev', metavar='<str>', default='NA', help='population prevalence for binary trait. Required for binary trait but leave it blank or enter NA for quantitative trait')
-@click.option( '--plotroc/--no_plot', metavar='<str>', default=False, help='whether to plot ROC curve for binary trait. Leave it blank for --no_plot for quantitative trait')
+@click.option( '--plotroc/--no_plot', metavar='<str>', default=False, help='whether to plot ROC curve for binary trait. Leave it blank or --no_plot for quantitative trait')
 def prs_stat(score, pheno, model, data, r, binary, pop_prev, plotroc):
     gprs = GPRS()
     gprs.prs_stat( score=score,
@@ -335,10 +337,10 @@ main.add_command( build_prs )
 main.add_command( clump )
 main.add_command( combine_prs )
 main.add_command( combine_stat)
-main.add_command( geneatlas_filter_data )
+#main.add_command( geneatlas_filter_data )
 main.add_command( generate_plink_bfiles )
 main.add_command( generate_plink_bfiles_w_individual_info )
-main.add_command( gwas_filter_data )
+#main.add_command( gwas_filter_data )
 main.add_command( ldpred2_train )
 main.add_command( multiple_prs )
 main.add_command( prepare_sumstat )
