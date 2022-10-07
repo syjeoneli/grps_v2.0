@@ -241,12 +241,12 @@ def prs_stat(score, pheno, model, data, r, binary, pop_prev, plotroc):
                          r=r,
                          binary=binary,pop_prev=pop_prev,plotroc=plotroc)
 
+
 @click.command()
 @click.option( '--data', metavar='<str>', required=True, help='directory in ./result/stat to combine the statistics.' )
 def combine_stat(data):
     gprs = GPRS()
     gprs.combine_stat( data=data )
-
 
 ## Optional function here
 @click.command()
@@ -268,13 +268,14 @@ def subset_pop(input_data, pop_info, output_name, column_name):
                     pop_info=pop_info)
 
 @click.command()
-@click.option('--popfile_name', metavar='<str>', required=True, help='the pop file name')
+@click.option('--popfile', metavar='<str>', required=True, help='pop file with full path and file extension')
 @click.option('--bfile_name', metavar='<str>', required=True, help='the bfile name')
+@click.option('--plink_command', metavar='<str>', required=True, help='--keep or --exclude')
 @click.option('--output_name', metavar='<str>', help='output name for sub-set population bfile')
-def generate_plink_bfiles_w_individual_info(popfile_name, bfile_name, output_name):
+def generate_plink_bfiles_w_individual_info(popfile, bfile_name, output_name, plink_command):
     gprs = GPRS()
     gprs.generate_plink_bfiles_w_individual_info(output_name=output_name, bfile_name=bfile_name,
-                                                 popfile_name=popfile_name)
+                                                 popfile=popfile, plink_command=plink_command)
 
 @click.command()
 @click.option('--fam_dir', metavar='<str>', required=True, help='the path to .fam')
@@ -289,6 +290,46 @@ def subset_vcf_w_random_sample(fam_dir, fam_filename, samplesize, vcf_input, sym
                                     samplesize=samplesize,
                                     vcf_input=vcf_input,
                                     symbol=symbol)
+
+@click.command()
+@click.option('--fam_dir', metavar='<str>', required=True, help='the path to .fam')
+@click.option('--fam_filename', metavar='<str>', required=True, help='name of fam file(without chr number)')
+@click.option('--samplesize', metavar='<int>', required=True, help='number of subset samples')
+@click.option('--tag', metavar='<str>', required=True, help='extract tag for output file name, i.e. LD_preference, training_individuals' )
+def random_draw_samples_from_fam(fam_dir, fam_filename, samplesize, tag):
+    gprs = GPRS()
+    gprs.random_draw_samples_from_fam(fam_dir=fam_dir,
+                                    fam_filename=fam_filename,
+                                    samplesize=samplesize,tag=tag)
+
+@click.command()
+@click.option('--index_of_chr_id', metavar='<int>', required=True, help='index of chr column in summary file')
+@click.option('--index_of_pos', metavar='<int>', required=True, help='index of pos column in summary file')
+@click.option('--index_of_allele1', metavar='<int>', required=True, help='index of REF column in summary file')
+@click.option('--index_of_allele2', metavar='<int>', required=True, help='index of ALT column in summary file' )
+@click.option('--index_of_beta', metavar='<int>', required=True, help='index of beta column in summary file' )
+@click.option('--index_of_se', metavar='<int>', required=True, help='index of se column in summary file' )
+@click.option('--index_of_pvalue', metavar='<int>', required=True, help='index of pvalue column in summary file' )
+@click.option('--summary_file', metavar='<str>', required=True, help='full GWAS summary file name with extension' )
+@click.option('--output_name', metavar='<str>', required=True, help='output name for uniq snplist and qc files' )
+@click.option('--data_dir', metavar='<str>', required=True, help='path to summary data' )
+def create_new_marker(index_of_chr_id,index_of_pos,index_of_allele1, index_of_allele2, summary_file, index_of_beta, index_of_se, index_of_pvalue, output_name, data_dir):
+    gprs = GPRS(data_dir=data_dir)
+    gprs.create_new_marker(index_of_chr_id=index_of_chr_id,
+                           index_of_pos=index_of_pos,index_of_allele1=index_of_allele1,index_of_allele2=index_of_allele2,
+                           summary_file=summary_file,output_name=output_name, index_of_beta=index_of_beta, index_of_se=index_of_se, index_of_pvalue=index_of_pvalue)
+
+@click.command()
+@click.option( '--data_set_name', metavar='<str>', required=True, help='the name of the data-set i.e. gout_2019_GCST008970' )
+@click.option( '--clump_kb', metavar='<int>', required=True, help='distance(kb) parameter for clumping' )
+@click.option( '--clump_p1', metavar='<float/scientific notation>', required=True, help='P-value for clumping' )
+@click.option( '--clump_r2', metavar='<float>',required=True, help='r2 value for clumping' )
+@click.option('--indv', metavar='<int>', required=True, help='full path to individuals list (individuals keep in sscore)' )
+@click.option('--output_name', metavar='<str>', required=True, help='output name' )
+def filtered_sscore_w_indv(data_set_name, clump_kb, clump_p1, clump_r2, indv, output_name):
+    gprs = GPRS()
+    gprs.filtered_sscore_w_indv(data_set_name=data_set_name, clump_kb=clump_kb,
+                           clump_p1=clump_p1, clump_r2=clump_r2, indv=indv, output_name=output_name)
 
 # main.add_command( test )
 main.add_command( beta_list )
@@ -309,4 +350,6 @@ main.add_command( select_clump_snps )
 main.add_command( transfer_atcg )
 main.add_command( subset_vcf_w_random_sample )
 main.add_command( subset_pop )
-
+main.add_command( random_draw_samples_from_fam )
+main.add_command( create_new_marker )
+main.add_command( filtered_sscore_w_indv )
