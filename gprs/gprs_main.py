@@ -475,11 +475,11 @@ gprs build-prs --vcf_dir {} --model""".format(
                 # Define vcf file
                 for vcf_file in os.listdir(vcf_dir):
                     if vcf_file.endswith('.vcf.gz') and "{}{}".format(chrnb, symbol) in vcf_file:
-                        # os.system("plink2 --vcf {}/{} dosage=DS --score {}/{} {} {} --memory {} --out {}/{}/{}_{}".format(
-                        #                                                     vcf_dir, vcf_file,
-                        #                                                     beta_list[model], beta_file, columns, plink_modifier,
-                        #                                                     memory,
-                        #                                                     out,model, chrnb, model))
+                        os.system("plink2 --vcf {}/{} dosage=DS --score {}/{} {} {} --memory {} --out {}/{}/{}_{}".format(
+                                                                             vcf_dir, vcf_file,
+                                                                             beta_list[model], beta_file, columns, plink_modifier,
+                                                                             memory,
+                                                                             out,model, chrnb, model))
                         print("{}_{}.sscore saved in {}/{}".format(chrnb, model, out, model))
                         file = pd.read_csv('{}/{}/{}_{}.sscore'.format(out, model, chrnb, model), sep='\t')
                         file.rename(columns={'SCORE1_SUM':'SCORE_{}'.format(chrnb), 'NMISS_ALLELE_CT':'ALLELE_CT_{}'.format(chrnb)}, inplace=True)
