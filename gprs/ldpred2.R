@@ -244,6 +244,7 @@ multi_auto <- snp_ldpred2_auto(corr, info_snp, h2_init = h2_est,
 beta_auto <- sapply(multi_auto, function(auto) auto$beta_est)
 pred_auto <- big_prodMat(G, beta_auto, ind.row = ind.test, ind.col = info_snp$`_NUM_ID_`)
 
+
 #filter out bad chains by comparing scale of resulting predictions(calculating sd and keeping ones without too much divergence)
 sc <- apply(pred_auto, 2, sd)
 keep <- abs(sc - median(sc)) < 3 * mad(sc)

@@ -21,7 +21,7 @@ cat(paste("model_name = ",model_name,"\n"))
 cat(paste("score file = ",scoref,"\n"))
 cat(paste("pheno file = ",phenof,"\n"))
 cat(paste("phenotype = ",family,"\n"))
-cat(paste("population prevalence = ",family,"\n"))
+cat(paste("population prevalence = ",pop_prev,"\n"))
 cat(paste("output_name = ",output_name,"\n"))
 cat("\n")
 
