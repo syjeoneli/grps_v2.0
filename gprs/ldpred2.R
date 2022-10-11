@@ -1,4 +1,12 @@
 #!/usr/bin/Rscript
+start.time <- Sys.time()
+
+dline <- paste0(strrep("=", 80),'\n')
+line <- paste0(strrep("-" , 80),'\n')
+cat( dline )
+cat( as.character(start.time), '- Starting Analysis: ldpred2-train \n')
+cat( dline )
+cat( '\n' )
 
 # Options
 suppressMessages(library("optparse"))
@@ -21,7 +29,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 if (is.na(opt$LDref)){
   opt$LDref = opt$train
 }
-cat('Options are:\n')
+cat('Options:\n')
 print(opt)
 
 #############
@@ -72,7 +80,7 @@ cat(paste0(nrow(sumstats),' SNPs in total... \n\n'))
 # 2. LD
 #############
 # Read in LD Reference
-cat('------------------------------------------------\n')
+cat(line)
 cat('Reading in LD Reference..\n')
 if(file.exists(paste0(opt$LDref,'.bk'))){
     system(paste0('rm ',opt$LDref,'.bk'))
@@ -135,12 +143,12 @@ cat('\nLD score saved in ',opt$LDmatrix,'\n\n\n')
 # 3. Read in Training data
 #############
 # Genotype plink file
-cat('------------------------------------------------\n')
+cat(line)
 cat('Reading in Training dataset...\n')
 if(opt$train == opt$LDref){
     cat('Training dataset is used as LD reference\n')
     map_test <- map
-    } else { #아직안해봄,info_snp아직건드리면안되나?
+    } else { 
     if(file.exists(paste0(opt$train,'.bk'))){
       system(paste0('rm ',opt$train,'.bk'))}
     snp_readBed(paste0(opt$train,'.bed'))
@@ -200,8 +208,8 @@ cat('\n\n')
 #############
 # 5.1 LDPred-Inf
 #############
-cat('-----------------------------------------\n\n')
-cat('Running LDPred models\n')
+cat(dline)
+cat('Running LDPred2 Analysis','\n')
 cat('Infinitestimal model..\n')
 beta_inf <- snp_ldpred2_inf(corr, info_snp, h2 = h2_est)
 ind.test <- 1:nrow(G)
@@ -235,6 +243,7 @@ multi_auto <- snp_ldpred2_auto(corr, info_snp, h2_init = h2_est,
                                ncores = NCORES)
 beta_auto <- sapply(multi_auto, function(auto) auto$beta_est)
 pred_auto <- big_prodMat(G, beta_auto, ind.row = ind.test, ind.col = info_snp$`_NUM_ID_`)
+
 
 #filter out bad chains by comparing scale of resulting predictions(calculating sd and keeping ones without too much divergence)
 sc <- apply(pred_auto, 2, sd)
