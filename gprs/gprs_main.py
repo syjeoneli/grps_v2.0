@@ -41,7 +41,6 @@ class GPRS(object):
         self.create_prs_dir()
         self.create_ct_dir()
         self.create_stat_dir()
-        self.create_random_draw_sample_dir()
         self.create_ldpred2_dir()
 
 
@@ -514,7 +513,7 @@ gprs build-prs --vcf_dir {} --model""".format(
             call("{0}script --vanilla ./gprs/prs_stat.R {1} {2} {3} {4} {5} {6} {7}/{8}/{1}".format(r, model, score, pheno,
                                                                             family, pop_prev, plotroc, 
                                                                             self.stat_dir, data), shell=True)
-       else:
+        else:
             print("{} not found. Please check the sscore again".format(score))
 
 
