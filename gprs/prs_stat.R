@@ -3,7 +3,6 @@
 suppressWarnings(library(tidyverse))
 suppressMessages(library(pROC))
 suppressMessages(library(DescTools))
-suppressMessages(library(WebPower))
 
 # options
 args <- commandArgs(TRUE)

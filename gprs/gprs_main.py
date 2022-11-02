@@ -470,13 +470,14 @@ gprs build-prs --vcf_dir {} --model""".format(
                                                                              beta_list[model], beta_file, columns, plink_modifier,
                                                                              memory,
                                                                              out,model, chrnb, model))
-                        print("{}_{}.sscore saved in {}/{}".format(chrnb, model, out, model))
-                        file = pd.read_csv('{}/{}/{}_{}.sscore'.format(out, model, chrnb, model), sep='\t')
-                        file.rename(columns={'SCORE1_SUM':'SCORE_{}'.format(chrnb), 'NMISS_ALLELE_CT':'ALLELE_CT_{}'.format(chrnb)}, inplace=True)
-                        if len(all) == 0:
-                            all=all.merge(file[['#IID','SCORE_{}'.format(chrnb), 'ALLELE_CT_{}'.format(chrnb)]], how='right')
-                        else:
-                            all=all.merge(file[['#IID','SCORE_{}'.format(chrnb), 'ALLELE_CT_{}'.format(chrnb)]], on='#IID')
+                        if os.path.exists('{}/{}/{}_{}.sscore'.format(out, model, chrnb, model)):
+                            print("{}_{}.sscore saved in {}/{}".format(chrnb, model, out, model))
+                            file = pd.read_csv('{}/{}/{}_{}.sscore'.format(out, model, chrnb, model), sep='\t')
+                            file.rename(columns={'SCORE1_SUM':'SCORE_{}'.format(chrnb), 'NMISS_ALLELE_CT':'ALLELE_CT_{}'.format(chrnb)}, inplace=True)
+                            if len(all) == 0:
+                                all=all.merge(file[['#IID','SCORE_{}'.format(chrnb), 'ALLELE_CT_{}'.format(chrnb)]], how='right')
+                            else:
+                                all=all.merge(file[['#IID','SCORE_{}'.format(chrnb), 'ALLELE_CT_{}'.format(chrnb)]], on='#IID')
                 
         if combine == 'T':
             print('\nOption to combine scores per chromsome is ON')
