@@ -507,7 +507,7 @@ gprs build-prs --vcf_dir {} --model""".format(
                 plotroc = 'no_plot'
 
             if not os.path.exists("{}/{}".format(self.stat_dir, data)):
-                os.mkdir("{}/{}".format(self.stat_dir, data))
+                os.makedirs("{}/{}".format(self.stat_dir, data),exist_ok=True)
             else:
                 print("Warning: statistics directory for {} already exists. Result will be overwritten with same model name. \n".format(data))
             # The R script is written by Soyoung Jeon
