@@ -5,7 +5,7 @@
 ---
 
 This package aims to generate the PRS model from GWAS summary statistics. 
-It is designed to deal with GWAS summary statistics from the GWAS catalog and GeneATLAS database or similar format datasets.
+It is designed to deal with GWAS summary statistics in different formats including the public databases such as GWAS catalog and GeneATLAS database.
 
 :octocat: Understanding the workflow of this package:
 
