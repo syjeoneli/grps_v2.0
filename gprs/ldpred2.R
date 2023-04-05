@@ -1,4 +1,8 @@
 #!/usr/bin/Rscript
+
+# original code - https://privefl.github.io/bigsnpr/articles/LDpred2.html
+# modified by - Soyoung Jeon
+
 start.time <- Sys.time()
 
 dline <- paste0(strrep("=", 80),'\n')
