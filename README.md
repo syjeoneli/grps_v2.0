@@ -4,15 +4,16 @@
 
 ---
 
-This package aims to generate the PRS model from GWAS summary statistics. 
+This package aims to generate the Polygenic Risk Scores (PRS) models based on a heuristic (Pruning+Thresholding) approach and a Bayesian approach (LDPred2). 
 It is designed to deal with GWAS summary statistics in different formats including the public databases such as GWAS catalog and GeneATLAS database.
 
 :octocat: Understanding the workflow of this package:
 
 1. Filter GWAS summary statistics files (unify the data format. optional: remove duplicate SNPID and select significant SNPs by P-value)
-2. Generate bfiles by Plink1.9
-3. Do clumping and thresholding by Plink1.9
-4. Generate PRS model by Plink2.0
+2. Generate bfiles using Plink1.9
+3. Do clumping and thresholding using Plink1.9
+4. Generate PRS model using Plink2.0
+5. General PRS models using LDPred2
 
 
 ## Environment setup
@@ -64,67 +65,8 @@ Download GWAS summary statistics from
 ### Before starting:
 If your GWAS summary statistics data are zipped, please unzip your .gz file first.
 
-## Two ways to run the package: Python or Commandline Interface
-### 1. Use Python
-
-For example, if you want to run GeneAtlas, create a python file, e.g: `gene_atlas_model.py`. 
-Paste the following code in the file and change the configuration to your settings. 
-
-```python
-from gprs.gene_atlas_model import GeneAtlasModel
-
-if __name__ == '__main__':
-    geneatlas = GeneAtlasModel( ref='/home/1000genomes/GRCh38',
-                    data_dir='/home/Projects/GPRS/data/2014_GWAS_Height' )
-
-    geneatlas.filter_data( snp_id_header='MarkerName',
-                            allele_header='Allele1',
-                            beta_header='b',
-                            se_header ='SE',
-                            pvalue_header='p',
-                            output_name='2014height')
-
-    geneatlas.generate_plink_bfiles(snplist_name='2014height', output_name='2014height',extra_commands="--vcf-half-call r" ,symbol='.genotypes')
-
-    geneatlas.clump(output_name='2014height',plink_bfile_name='2014height',
-                    qc_file_name='2014height',clump_kb='250',
-                    clump_p1='0.02',clump_p2='0.02', clump_r2='0.02')
-
-    geneatlas.select_clump_snps(output_name='2014height',
-                                clump_file_name='2014height',
-                                qc_file_name='2014height',
-                                clump_kb='250',
-                                clump_p1='0.02',
-                                clump_r2='0.5',clumpfolder_name='2014height')
-
-    geneatlas.build_prs( vcf_input= 'home/1000genomes/hg19',
-                         output_name ='2014height', memory='1000',clump_kb='250',
-                         clump_p1='0.02', clump_r2='0.02', qc_clump_snplist_foldername='2014height')
-
-    geneatlas.combine_prs(filename="2014height",
-                          clump_r2="0.5",clump_kb="250",clump_p1="0.02")
-
-    geneatlas.prs_statistics(output_name='2014height', score_file = "home/GPRS/tmp/2014height_250_0.02_0.1.sscore",
-                             pheno_file = "prs/2014height_pheno.csv",
-                             r_command='/bin/Rscript',
-                             prs_stats_R="/GPRS/gprs/prs_stats_quantitative_phenotype.R", 
-                             data_set_name="2014height",
-                             clump_kb='250',
-                             clump_p1='0.02',
-                             clump_r2='0.1')
-    
-    geneatlas.subset_pop(input_data="home/1000genomes/hg19/integrated_call_samples_v3.20130502.ALL.panel",
-                         column_name="super_pop",pop_info = "EUR", output_name = "2014height")
-
-    geneatlas.generate_plink_bfiles_w_individual_info(popfile_name="2014height", output_name="2014height",bfile_name="2014height")
-    
-    geneatlas.subset_vcf_w_random_sample(fam_dir="/home/result/plink/bfiles", fam_filename="2014height", samplesize=50, vcf_input="1000genomes/hg19", symbol=".")
-    
-    geneatlas.random_draw_samples_from_fam(fam_dir="/home/result/plink/bfiles",fam_filename="2014height", samplesize= "500", tag="LD_reference") 
-
-```
  
-### 2. Use Commandline Interface
+### Commands
 
 ```shell
 $ gprs geneatlas-filter-data --ref [str] --data_dir [str] --result_dir [str] --snp_id_header [str] --allele_header [str] --beta_header [str] --se_header [str] --pvalue_header [str] --pvalue [float/scientific notation] --output_name [str]  
